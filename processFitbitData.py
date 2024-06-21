@@ -7,4 +7,4 @@ logger.setLevel(logging.INFO)
 
 dynamodb_client = boto3.client('dynamodb')
 def lambda_handler(event, context):
-    logger.info("Recieved Event:", json.dumps(event))
+    logger.info(json.dumps(event))
