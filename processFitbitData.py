@@ -36,8 +36,9 @@ def refresh_access_token(client_id, client_secret, refresh_token):
     response = http.request("POST", FITBIT_TOKEN_ENDPOINT, headers=myheader, body=encoded_data).data.decode("utf-8")
     
     json_response = json.loads(response)
-    
-    return json.dumps(json_response, default=str)
+
+    return json_response
+
 
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
