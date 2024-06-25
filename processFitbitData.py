@@ -58,7 +58,7 @@ def lambda_handler(event, context):
     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
     logger.info(refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter))
-    logger.info(json.dumps(event)) 
+    logger.info(json.dumps(event))
 
 
 
