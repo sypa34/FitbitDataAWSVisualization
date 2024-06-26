@@ -41,12 +41,15 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
         logger.error("An error occured when attempting to refresh tokens: {}".format(e))
     finally:
         logger.info(f"Old access token: {get_parameter("Fitbit_Access_Token", True)}")
-        logger.info(f"Old Refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
+        logger.info(f"Old refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
         # Change (overwrite) the values in parameter store
-        SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
-        SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
-        logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
-        logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
+
+        logger.info(f"access token: {json_response['access_token']}")
+
+        # SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
+        # SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
+        # logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
+        # logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
 
 
 
