@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
 
 # Function should refresh the tokens in Systems Paramter Store
-def refresh_access_token(client_id, client_secret, refresh_token):
+def refresh_access_token(client_id, client_secret, refresh_token, access_param_name, refresh_param_name):
     concatenated_client_id_client_secret = f"{client_id}:{client_secret}"
     base64_credentials = base64.b64encode(concatenated_client_id_client_secret.encode()).decode()
 
@@ -32,18 +32,31 @@ def refresh_access_token(client_id, client_secret, refresh_token):
     }
     
     encoded_data = urllib.parse.urlencode(data)
-    
     response = http.request("POST", FITBIT_TOKEN_ENDPOINT, headers=myheader, body=encoded_data).data.decode("utf-8")
-    
     json_response = json.loads(response)
+    
+    try:
+        return json_response
+    except Exception as e:
+        logger.error("An error occured when attempting to refresh tokens: {}".format(e))
+    finally:
+        logger.info(f"Old access token: {get_parameter("Fitbit_Access_Token", True)}")
+        logger.info(f"Old Refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
+        # Change (overwrite) the values in parameter store
+        SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
+        SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
+        logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
+        logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
 
-    return json_response
+
+
 
 
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
     return parameter
 
+# get_fitbit_data function works
 def get_fitbit_data(access_token):
     header = {
         'Authorization': 'Bearer ' + access_token
@@ -51,18 +64,10 @@ def get_fitbit_data(access_token):
     response = http.request("GET", FITBIT_URL_ENDPOINT, headers=header).data.decode("utf-8")
     return json.dumps(response)
 
-# def append_dyanamodb_table(table, f)
-
 def lambda_handler(event, context):
     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
-    token_response = refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter)
-    logger.info("Token response: %s", token_response)
-    
-    if "access_token" in token_response:
-        access_token = token_response["access_token"]
-        fitbit_data = get_fitbit_data(access_token)
-        logger.info("Fitbit data: %s", fitbit_data)
-    else:
-        logger.error("Failed to refresh token: %s", token_response)
+    ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
+    REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
+    refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
