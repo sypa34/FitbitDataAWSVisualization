@@ -44,7 +44,7 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
         logger.info(f"Old refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
         # Change (overwrite) the values in parameter store
 
-        logger.info(f"access token: {json_response['access_token']}")
+        logger.info(json_response)
 
         # SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
         # SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
