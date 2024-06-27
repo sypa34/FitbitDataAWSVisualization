@@ -50,7 +50,7 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
         # SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
         # logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
         # logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
-
+ 
 
 
 
