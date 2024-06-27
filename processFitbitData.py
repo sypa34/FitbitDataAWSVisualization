@@ -16,6 +16,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
 
+def get_parameter(parameter_key, decryption_choice):
+    parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
+    return parameter
+
 # Function should refresh the tokens in Systems Paramter Store
 def refresh_access_token(client_id, client_secret, refresh_token, access_param_name, refresh_param_name):
     concatenated_client_id_client_secret = f"{client_id}:{client_secret}"
@@ -46,18 +50,16 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
 
         logger.info(json_response)
 
-        # SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
-        # SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
-        # logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
-        # logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
+        SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
+        SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
+        logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
+        logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
  
 
 
 
 
-def get_parameter(parameter_key, decryption_choice):
-    parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
-    return parameter
+
 
 # get_fitbit_data function works
 def get_fitbit_data(access_token):
