@@ -40,28 +40,22 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
     json_response = json.loads(response)
     
     try:
+        # Try to send POST message to Fitbit API
         return json_response
     except Exception as e:
         logger.error("An error occured when attempting to refresh tokens: {}".format(e))
     finally:
         logger.info(f"Old access token: {get_parameter("Fitbit_Access_Token", True)}")
         logger.info(f"Old refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
+        # Log the Fitbit API response to Cloudwatch
+        logger.info(f"Fitbit API Response: {json_response}")
         # Change (overwrite) the values in parameter store
-
-        logger.info(json_response)
-
         SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
         SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
+        # Log the New Access Tokens updated in Parameter Store to Cloudwatch
         logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
         logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
  
-
-
-
-
-
-
-# get_fitbit_data function works
 def get_fitbit_data(access_token):
     header = {
         'Authorization': 'Bearer ' + access_token
@@ -70,9 +64,23 @@ def get_fitbit_data(access_token):
     return json.dumps(response)
 
 def lambda_handler(event, context):
+    # Get needed parameters for refresh token and declare constant variables
     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
     ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
     REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
+    # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
     refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
+    # Attempt to get the fitbit data
+    try: 
+        fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
+        # Log the obtained data
+        logger.info(f"Recieved Fitbit Data: {fitbit_data}")
+    except Exception as e:
+        logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+    
+    
+
+    
+    
