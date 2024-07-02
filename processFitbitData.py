@@ -79,7 +79,7 @@ def get_fitbit_data(access_token):
     
     data = {breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary}
 
-    return json.loads(data)
+    return data
 
     # return json.loads(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
     return json.loads 
