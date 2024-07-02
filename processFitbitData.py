@@ -4,6 +4,8 @@ import logging
 import base64
 import urllib3
 import urllib.parse
+from datetime import date
+
 
 SSM = boto3.client("ssm")
 # FITBIT_URL_ENDPOINT will be used to obtain the Fitbit data
@@ -57,11 +59,31 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
         logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
  
 def get_fitbit_data(access_token):
+
     header = {
         'Authorization': 'Bearer ' + access_token
     }
-    response = http.request("GET", FITBIT_URL_ENDPOINT, headers=header).data.decode("utf-8")
-    return json.dumps(response)
+
+    # response = http.request("GET", FITBIT_URL_ENDPOINT, headers=header).data.decode("utf-8")
+
+    breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header).data.decode("utf-8")
+
+    ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header).data.decode("utf-8")
+
+    water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
+
+    core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
+
+    spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
+    
+    return json.dumps(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
+
+def read_fitbit_data(data):
+    user_id = data[]
+
+
+
+
 
 def lambda_handler(event, context):
     # Get needed parameters for refresh token and declare constant variables
@@ -79,6 +101,8 @@ def lambda_handler(event, context):
         logger.info(f"Recieved Fitbit Data: {fitbit_data}")
     except Exception as e:
         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+
+    
     
     
 
