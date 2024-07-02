@@ -76,7 +76,7 @@ def get_fitbit_data(access_token):
 
     spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
     
-    return json.dumps(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
+    return json.loads(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
 
 # def read_fitbit_data(data):
 
