@@ -78,8 +78,7 @@ def get_fitbit_data(access_token):
     
     return json.dumps(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
 
-def read_fitbit_data(data):
-    user_id = data[]
+# def read_fitbit_data(data):
 
 
 
