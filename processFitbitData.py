@@ -4,7 +4,7 @@ import logging
 import base64
 import urllib3
 import urllib.parse
-from datetime import date
+import datetime
 
 
 SSM = boto3.client("ssm")
@@ -13,6 +13,7 @@ FITBIT_URL_ENDPOINT = 'https://api.fitbit.com/1/user/-/profile.json'
 # FITBIT_TOKEN_ENDPOINT will be used to obtain new access and refresh tokens
 FITBIT_TOKEN_ENDPOINT = "https://api.fitbit.com/oauth2/token"
 
+todays_date = str(datetime.datetime.now())
 http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -69,7 +70,11 @@ def get_fitbit_data(access_token):
 
     breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header).data.decode("utf-8")
 
-    ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header).data.decode("utf-8")
+    ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, params={'beforeDate': todays_date,
+        'sort': 'desc',
+        'limit': 10,
+        'offset': 0
+    }).data.decode("utf-8")
 
     water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
 
