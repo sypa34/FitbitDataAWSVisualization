@@ -87,7 +87,7 @@ def get_fitbit_data(access_token):
 
     return data
 
-def add_data_dyanamodb(data):
+# def add_data_dyanamodb(data):
 
 
 
