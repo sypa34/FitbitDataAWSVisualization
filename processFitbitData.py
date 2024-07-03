@@ -78,13 +78,16 @@ def get_fitbit_data(access_token):
     spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
     
     data = {breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary}
+    
+    logger.info(f"Breathing Rate: {breathing_rate_summary}")
+    logger.info(f"ECG Readings: {ecg_readings_summary}")
+    logger.info(f"Water Log: {water_log_summary}")
+    logger.info(f"Core Temperature: {core_temp_summary}")
+    logger.info(f"SPO2 Summary: {spo2_summary}")
 
     return data
 
-    # return json.loads(breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary)
-    return json.loads 
-
-# def read_fitbit_data(data):
+def add_data_dyanamodb(data):
 
 
 
@@ -102,8 +105,6 @@ def lambda_handler(event, context):
     # Attempt to get the fitbit data
     try: 
         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
-        # Log the obtained data
-        logger.info(f"Recieved Fitbit Data: {fitbit_data}")
     except Exception as e:
         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
 
