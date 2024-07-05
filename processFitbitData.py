@@ -5,7 +5,7 @@ import base64
 import urllib3
 import urllib.parse
 import datetime
-import requests
+# import requests
 
 SSM = boto3.client("ssm")
 # FITBIT_URL_ENDPOINT will be used to obtain the Fitbit data
@@ -76,18 +76,18 @@ def get_fitbit_data(access_token):
     #     'offset': 0
     # }).data.decode("utf-8")
 
-    breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
-    water_log_summary = requests.get('https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header)
-    core_temp_summary = requests.get('https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header)
-    spo2_summary = requests.get('https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header)
-    breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
+    # breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
+    # water_log_summary = requests.get('https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header)
+    # core_temp_summary = requests.get('https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header)
+    # spo2_summary = requests.get('https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header)
+    # breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
 
     # ecg data TBD!!!!!!
 
     # **********ignore below:
-    # water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
-    # core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
-    # spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
+    water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
+    core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
+    spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
     
     data = {{'breathing_rate': breathing_rate_summary}, {'water_log': water_log_summary}, {'core_temp': core_temp_summary}, {'spo2_log': spo2_summary}}
     
