@@ -5,7 +5,7 @@ import base64
 import urllib3
 import urllib.parse
 import datetime
-
+import requests
 
 SSM = boto3.client("ssm")
 # FITBIT_URL_ENDPOINT will be used to obtain the Fitbit data
@@ -18,6 +18,7 @@ http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
+table = dynamodb_client.Table('FitbitData')
 
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
@@ -68,31 +69,62 @@ def get_fitbit_data(access_token):
     # response = http.request("GET", FITBIT_URL_ENDPOINT, headers=header).data.decode("utf-8")
     
 
-    breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header).data.decode("utf-8")
+    # breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
+    # ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, params={'beforeDate': todays_date,
+    #     'sort': 'desc',
+    #     'limit': 10,
+    #     'offset': 0
+    # }).data.decode("utf-8")
 
-    ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, params={'beforeDate': todays_date,
-        'sort': 'desc',
-        'limit': 10,
-        'offset': 0
-    }).data.decode("utf-8")
+    breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
+    water_log_summary = requests.get('https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header)
+    core_temp_summary = requests.get('https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header)
+    spo2_summary = requests.get('https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header)
+    breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
 
-    water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
+    # ecg data TBD!!!!!!
 
-    core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
-
-    spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
+    # **********ignore below:
+    # water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
+    # core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
+    # spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
     
-    data = {breathing_rate_summary, ecg_readings_summary, water_log_summary, core_temp_summary, spo2_summary}
+    data = {{'breathing_rate': breathing_rate_summary}, {'water_log': water_log_summary}, {'core_temp': core_temp_summary}, {'spo2_log': spo2_summary}}
     
     logger.info(f"Breathing Rate: {breathing_rate_summary}")
-    logger.info(f"ECG Readings: {ecg_readings_summary}")
+    # logger.info(f"ECG Readings: {ecg_readings_summary}")
     logger.info(f"Water Log: {water_log_summary}")
     logger.info(f"Core Temperature: {core_temp_summary}")
     logger.info(f"SPO2 Summary: {spo2_summary}")
-
     return data
 
-# def add_data_dyanamodb(data):
+
+def transform_br_data(data):
+    return {
+        'DataType': 'BreathingRate',
+        'timestamp': todays_date,
+        'breathing_rate': data['breathing_rate']['summary']
+    }
+
+
+def transform_water_data(data):
+    return {
+        'DataType': 'WaterLogData',
+        'timestamp': todays_date,
+        'water_log': data['water_log']['summary']['water'] 
+    }
+    
+
+def transform_core_temp_data(data):
+    # add code
+
+def transform_spo2_data(data):
+    # add code
+    
+
+def add_data_dyanamodb(data):
+
+
 
 
 
