@@ -115,14 +115,14 @@ def transform_water_data(data):
     }
     
 
-def transform_core_temp_data(data):
-    # add code
+# def transform_core_temp_data(data):
+#     # add code
 
-def transform_spo2_data(data):
-    # add code
+# def transform_spo2_data(data):
+#     # add code
     
 
-def add_data_dyanamodb(data):
+# def add_data_dyanamodb(data):
 
 
 
