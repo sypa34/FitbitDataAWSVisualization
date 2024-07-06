@@ -20,6 +20,26 @@ logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
 # table = dynamodb_client.Table('FitbitData')
 
+def verify_subscriber(the_event, context):
+    
+    CORRECT_VERIFICATION_CODE = "50ac9687637e30631ee449024a176e10953c8f03627160c4fd4ba55114c7008c"
+    # Get the 'verify' query string parameter
+    verify_param = event['queryStringParameters'].get('verify', '')
+
+    # Check if the verification code is correct
+    if verify_param == CORRECT_VERIFICATION_CODE:
+        # Return a 204 No Content response for the correct verification code
+        return {
+            'statusCode': 204,
+            'body': ''
+        }
+    else:
+        # Return a 404 Not Found response for an incorrect verification code
+        return {
+            'statusCode': 404,
+            'body': ''
+        }
+
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
     return parameter
@@ -129,20 +149,24 @@ def transform_water_data(data):
 
 
 
+# def lambda_handler(event, context):
+#     # Get needed parameters for refresh token and declare constant variables
+#     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
+#     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
+#     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
+#     ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
+#     REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
+#     # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
+#     refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
+#     # Attempt to get the fitbit data
+#     try: 
+#         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
+#     except Exception as e:
+#         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+
+
 def lambda_handler(event, context):
-    # Get needed parameters for refresh token and declare constant variables
-    client_id_parameter = get_parameter("Fitbit_Client_ID", True)
-    client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
-    refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
-    ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
-    REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
-    # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
-    refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
-    # Attempt to get the fitbit data
-    try: 
-        fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
-    except Exception as e:
-        logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+    return verify_subscriber(event, context)
 
     
     
