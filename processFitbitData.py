@@ -18,7 +18,7 @@ http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
-table = dynamodb_client.Table('FitbitData')
+# table = dynamodb_client.Table('FitbitData')
 
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
