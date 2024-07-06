@@ -67,9 +67,6 @@ def get_fitbit_data(access_token):
     }
 
     # response = http.request("GET", FITBIT_URL_ENDPOINT, headers=header).data.decode("utf-8")
-    
-
-    # breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
     # ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, params={'beforeDate': todays_date,
     #     'sort': 'desc',
     #     'limit': 10,
@@ -83,8 +80,7 @@ def get_fitbit_data(access_token):
     # breathing_rate_summary = requests.get('https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
 
     # ecg data TBD!!!!!!
-
-    # **********ignore below:
+    breathing_rate_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header)
     water_log_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8")
     core_temp_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8")
     spo2_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8")
