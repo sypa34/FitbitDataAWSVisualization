@@ -174,7 +174,7 @@ def transform_water_data(data):
 
 def lambda_handler(event, context):
     
-    logger.debug(event)
+    print(event)
 
     # Get needed parameters for refresh token and declare constant variables
     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
