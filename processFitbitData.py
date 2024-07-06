@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
 # table = dynamodb_client.Table('FitbitData')
 
-def verify_subscriber(the_event, context):
+def verify_subscriber(event, context):
     
     CORRECT_VERIFICATION_CODE = "50ac9687637e30631ee449024a176e10953c8f03627160c4fd4ba55114c7008c"
     # Get the 'verify' query string parameter
