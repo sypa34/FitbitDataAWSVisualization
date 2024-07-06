@@ -40,6 +40,34 @@ def verify_subscriber(event, context):
             'body': ''
         }
 
+def create_subscription(access_token, subscription_id, collection_path=None):
+    http = urllib3.PoolManager()
+    base_url = "https://api.fitbit.com/1/user/-"
+    if collection_path:
+        url = f"{base_url}/{collection_path}/apiSubscriptions/{subscription_id}.json"
+    else:
+        url = f"{base_url}/apiSubscriptions/{subscription_id}.json"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Length": "0",
+        "Content-Type": "application/json"
+    }
+
+    response = http.request("POST", url, headers=headers)
+    response_data = json.loads(response.data.decode("utf-8"))
+
+    if response.status == 201:
+        logger.info("Subscription created successfully!!!!")
+    elif response.status == 200:
+        logger.error("Subscription already exists with the same subscription ID.")
+    elif response.status == 409:
+        logger.error("Conflict: Subscription ID is already used for a different stream.")
+    else:
+        logger.error(f"Failed to create subscription: {response.status} - {response_data}")
+
+    return response_data
+
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
     return parameter
@@ -164,9 +192,10 @@ def transform_water_data(data):
 #     except Exception as e:
 #         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
 
-
 def lambda_handler(event, context):
-    return verify_subscriber(event, context)
+    token = get_parameter("Fitbit_Access_Token", True)
+    id = 1
+    return create_subscription(token, id, None)
 
     
     
