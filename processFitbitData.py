@@ -177,25 +177,25 @@ def transform_water_data(data):
 
 
 
-# def lambda_handler(event, context):
-#     # Get needed parameters for refresh token and declare constant variables
-#     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
-#     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
-#     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
-#     ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
-#     REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
-#     # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
-#     refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
-#     # Attempt to get the fitbit data
-#     try: 
-#         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
-#     except Exception as e:
-#         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
-
 def lambda_handler(event, context):
-    token = get_parameter("Fitbit_Access_Token", True)
-    id = 1
-    return create_subscription(token, id, None)
+    # Get needed parameters for refresh token and declare constant variables
+    client_id_parameter = get_parameter("Fitbit_Client_ID", True)
+    client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
+    refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
+    ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
+    REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
+    # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
+    refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
+    # Attempt to get the fitbit data
+    try: 
+        fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
+    except Exception as e:
+        logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+
+# def lambda_handler(event, context):
+#     token = get_parameter("Fitbit_Access_Token", True)
+#     id = 1
+#     return create_subscription(token, id, None)
 
     
     
