@@ -97,17 +97,10 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
     except Exception as e:
         logger.error("An error occured when attempting to refresh tokens: {}".format(e))
     finally:
-        logger.info(f"Old access token: {get_parameter("Fitbit_Access_Token", True)}")
-        logger.info(f"Old refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
-        # Log the Fitbit API response to Cloudwatch
-        logger.info(f"Fitbit API Response: {json_response}")
         # Change (overwrite) the values in parameter store
         SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
         SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
-        # Log the New Access Tokens updated in Parameter Store to Cloudwatch
-        logger.info(f"New access token: {get_parameter("Fitbit_Access_Token", True)}")
-        logger.info(f"New refresh token: {get_parameter("Fitbit_Refresh_Token", True)}")
- 
+
 def get_fitbit_data(access_token):
 
     header = {
@@ -136,17 +129,14 @@ def get_fitbit_data(access_token):
         'ecg_log': ecg_readings_summary
     }
     
-    # Log the retreived data.
-    logger.info(f"Breathing Rate: {breathing_rate_summary}")
-    logger.info(f"ECG Readings: {ecg_readings_summary}")
-    logger.info(f"Water Log: {water_log_summary}")
-    logger.info(f"Core Temperature: {core_temp_summary}")
-    logger.info(f"SPO2 Summary: {spo2_summary}")
-    logger.info(f"Combined dictionary: {data}")
     return data
 
 
 def transform_br_data(data):
+    logger.info({
+        'DataType': 'breathingRate',
+        'timestamp': todays_date,
+        'breathing_rate': data['breathing_rate']['summary']})
     return {
         'DataType': 'breathingRate',
         'timestamp': todays_date,
@@ -155,6 +145,11 @@ def transform_br_data(data):
 
 
 def transform_water_data(data):
+    logger.info({
+        'DataType': 'waterLog',
+        'timestamp': todays_date,
+        'water_log': data['water_log']['summary']['water'] 
+    })
     return {
         'DataType': 'waterLog',
         'timestamp': todays_date,
@@ -163,6 +158,11 @@ def transform_water_data(data):
     
 
 def transform_core_temp_data(data):
+    logger.info({
+        'DataType': 'tempCore',
+        'timestamp': todays_date,
+        'temperature': data['core_temp']['tempCore']['value']
+    })
     return {
         'DataType': 'tempCore',
         'timestamp': todays_date,
@@ -170,6 +170,12 @@ def transform_core_temp_data(data):
     }
 
 def transform_ecg_data(data):
+    logger.info({
+        'DataType': 'ecgLog',
+        'timestamp': todays_date,
+        'averageHeartRate': data['ecgReadings']['averageHeartRate'],
+        'resultClassification': data['ecgReadings']['resultClassification']
+    })
     return {
         'DataType': 'ecgLog',
         'timestamp': todays_date,
@@ -178,6 +184,13 @@ def transform_ecg_data(data):
     }
 
 def transform_spo2_data(data):
+    logger.info({
+        'DataType': 'spO2',
+        'timestamp': todays_date,
+        'averageSpO2': data['value']['avg'],
+        'minSpO2': data['value']['min'],
+        'maxSpO2': data['value']['max']
+    })
     return {
         'DataType': 'spO2',
         'timestamp': todays_date,
