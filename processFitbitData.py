@@ -331,13 +331,13 @@ def add_data_dyanamodb(data):
         try:
             # Convert numerical values to Decimal
             if 'breathing_rate' in item:
-                item['breathing_rate'] = Decimal(str(item['breathing_rate']))
+                item['breathing_rate'] = Decimal(item['breathing_rate'])
             elif 'temperature' in item:
-                item['temperature'] = Decimal(str(item['temperature']))
+                item['temperature'] = Decimal(item['temperature'])
             elif 'averageSpO2' in item:
-                item['averageSpO2'] = Decimal(str(item['averageSpO2']))
-                item['minSpO2'] = Decimal(str(item['minSpO2']))
-                item['maxSpO2'] = Decimal(str(item['maxSpO2']))
+                item['averageSpO2'] = Decimal(item['averageSpO2'])
+                item['minSpO2'] = Decimal(item['minSpO2'])
+                item['maxSpO2'] = Decimal(item['maxSpO2'])
             
             table.put_item(Item=item)
             logger.info(f"Item placed in DynamoDB Table: {item}")
