@@ -173,30 +173,30 @@ def transform_ecg_data(data):
     logger.info({
         'DataType': 'ecgLog',
         'timestamp': todays_date,
-        'averageHeartRate': data['ecgReadings']['averageHeartRate'],
-        'resultClassification': data['ecgReadings']['resultClassification']
+        'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
+        'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
     })
     return {
         'DataType': 'ecgLog',
         'timestamp': todays_date,
-        'averageHeartRate': data['ecgReadings']['averageHeartRate'],
-        'resultClassification': data['ecgReadings']['resultClassification']
+        'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
+        'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
     }
 
 def transform_spo2_data(data):
     logger.info({
         'DataType': 'spO2',
         'timestamp': todays_date,
-        'averageSpO2': data['value']['avg'],
-        'minSpO2': data['value']['min'],
-        'maxSpO2': data['value']['max']
+        'averageSpO2': data['spo2_log']['value']['avg'],
+        'minSpO2': data['spo2_log']['value']['min'],
+        'maxSpO2': data['spo2_log']['value']['max']
     })
     return {
         'DataType': 'spO2',
         'timestamp': todays_date,
-        'averageSpO2': data['value']['avg'],
-        'minSpO2': data['value']['min'],
-        'maxSpO2': data['value']['max']
+        'averageSpO2': data['spo2_log']['value']['avg'],
+        'minSpO2': data['spo2_log']['value']['min'],
+        'maxSpO2': data['spo2_log']['value']['max']
     }
     
 
