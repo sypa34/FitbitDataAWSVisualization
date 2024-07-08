@@ -132,56 +132,125 @@ def get_fitbit_data(access_token):
     return data
 
 
+# def transform_br_data(data):
+#     logger.info({
+#         'DataType': 'breathingRate',
+#         'timestamp': todays_date,
+#         'breathing_rate': data['breathing_rate']['summary']})
+#     return {
+#         'DataType': 'breathingRate',
+#         'timestamp': todays_date,
+#         'breathing_rate': data['breathing_rate']['summary']
+#     }
+
 def transform_br_data(data):
     logger.info({
         'DataType': 'breathingRate',
         'timestamp': todays_date,
-        'breathing_rate': data['breathing_rate']['summary']})
+        'breathing_rate': data['breathing_rate']['br'][0]['value']
+    })
     return {
         'DataType': 'breathingRate',
         'timestamp': todays_date,
-        'breathing_rate': data['breathing_rate']['summary']
+        'breathing_rate': data['breathing_rate']['br'][0]['value']
     }
 
 
+
+# def transform_water_data(data):
+#     logger.info({
+#         'DataType': 'waterLog',
+#         'timestamp': todays_date,
+#         'water_log': data['water_log']['summary']['water'] 
+#     })
+#     return {
+#         'DataType': 'waterLog',
+#         'timestamp': todays_date,
+#         'water_log': data['water_log']['summary']['water'] 
+#     }
+    
 def transform_water_data(data):
     logger.info({
         'DataType': 'waterLog',
         'timestamp': todays_date,
-        'water_log': data['water_log']['summary']['water'] 
+        'water_log': data['water_log']['summary']['water']
     })
     return {
         'DataType': 'waterLog',
         'timestamp': todays_date,
-        'water_log': data['water_log']['summary']['water'] 
+        'water_log': data['water_log']['summary']['water']
     }
-    
+
+
+# def transform_core_temp_data(data):
+#     logger.info({
+#         'DataType': 'tempCore',
+#         'timestamp': todays_date,
+#         'temperature': data['core_temp']['tempCore']['value']
+#     })
+#     return {
+#         'DataType': 'tempCore',
+#         'timestamp': todays_date,
+#         'temperature': data['core_temp']['tempCore']['value']
+#     }
 
 def transform_core_temp_data(data):
     logger.info({
         'DataType': 'tempCore',
         'timestamp': todays_date,
-        'temperature': data['core_temp']['tempCore']['value']
+        'temperature': data['core_temp']['tempCore'][0]['value']
     })
     return {
         'DataType': 'tempCore',
         'timestamp': todays_date,
-        'temperature': data['core_temp']['tempCore']['value']
+        'temperature': data['core_temp']['tempCore'][0]['value']
     }
+
+
+# def transform_ecg_data(data):
+#     logger.info({
+#         'DataType': 'ecgLog',
+#         'timestamp': todays_date,
+#         'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
+#         'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
+#     })
+#     return {
+#         'DataType': 'ecgLog',
+#         'timestamp': todays_date,
+#         'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
+#         'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
+#     }
 
 def transform_ecg_data(data):
     logger.info({
         'DataType': 'ecgLog',
         'timestamp': todays_date,
-        'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
-        'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
+        'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+        'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
     })
     return {
         'DataType': 'ecgLog',
         'timestamp': todays_date,
-        'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
-        'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
+        'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+        'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
     }
+
+
+# def transform_spo2_data(data):
+#     logger.info({
+#         'DataType': 'spO2',
+#         'timestamp': todays_date,
+#         'averageSpO2': data['spo2_log']['value']['avg'],
+#         'minSpO2': data['spo2_log']['value']['min'],
+#         'maxSpO2': data['spo2_log']['value']['max']
+#     })
+#     return {
+#         'DataType': 'spO2',
+#         'timestamp': todays_date,
+#         'averageSpO2': data['spo2_log']['value']['avg'],
+#         'minSpO2': data['spo2_log']['value']['min'],
+#         'maxSpO2': data['spo2_log']['value']['max']
+#     }
 
 def transform_spo2_data(data):
     logger.info({
@@ -198,7 +267,6 @@ def transform_spo2_data(data):
         'minSpO2': data['spo2_log']['value']['min'],
         'maxSpO2': data['spo2_log']['value']['max']
     }
-    
 
 def add_data_dyanamodb(data):
     transformed_data = []
