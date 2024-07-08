@@ -18,7 +18,7 @@ http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 dynamodb_client = boto3.client('dynamodb')
-# table = dynamodb_client.Table('FitbitData')
+table = dynamodb_client.Table('FitbitData')
 
 def verify_subscriber(event, context):
     
@@ -114,31 +114,31 @@ def get_fitbit_data(access_token):
         'Authorization': 'Bearer ' + access_token
     }
 
-    # ******Ignore for now:
-    # ecg_readings_summary = http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, params={'beforeDate': todays_date,
-    #     'sort': 'desc',
-    #     'limit': 10,
-    #     'offset': 0
-    # }).data.decode("utf-8")
-
     
     # Make API calls to retrieve specific data.
     breathing_rate_summary = json.loads(http.request("GET", 'https://api.fitbit.com/1/user/-/br/date/today.json', headers=header).data.decode("utf-8"))
     water_log_summary = json.loads(http.request("GET", 'https://api.fitbit.com/1/user/-/foods/log/water/date/today.json', headers=header).data.decode("utf-8"))
     core_temp_summary = json.loads(http.request("GET", 'https://api.fitbit.com/1/user/-/temp/core/date/today.json', headers=header).data.decode("utf-8"))
     spo2_summary = json.loads(http.request("GET", 'https://api.fitbit.com/1/user/-/spo2/date/today.json', headers=header).data.decode("utf-8"))
+    ecg_readings_summary = json.loads(http.request("GET", 'https://api.fitbit.com/1/user/-/ecg/list.json', headers=header, fields={
+        'beforeDate': todays_date,
+        'sort': 'desc',
+        'limit': 10,
+        'offset': 0
+    }).data.decode("utf-8"))
     
     # Create Dictionary to store data.
     data = {
         'breathing_rate': breathing_rate_summary, 
         'water_log': water_log_summary, 
         'core_temp': core_temp_summary, 
-        'spo2_log': spo2_summary
+        'spo2_log': spo2_summary,
+        'ecg_log': ecg_readings_summary
     }
     
     # Log the retreived data.
     logger.info(f"Breathing Rate: {breathing_rate_summary}")
-    # logger.info(f"ECG Readings: {ecg_readings_summary}")
+    logger.info(f"ECG Readings: {ecg_readings_summary}")
     logger.info(f"Water Log: {water_log_summary}")
     logger.info(f"Core Temperature: {core_temp_summary}")
     logger.info(f"SPO2 Summary: {spo2_summary}")
@@ -148,7 +148,7 @@ def get_fitbit_data(access_token):
 
 def transform_br_data(data):
     return {
-        'DataType': 'BreathingRate',
+        'DataType': 'breathingRate',
         'timestamp': todays_date,
         'breathing_rate': data['breathing_rate']['summary']
     }
@@ -156,26 +156,54 @@ def transform_br_data(data):
 
 def transform_water_data(data):
     return {
-        'DataType': 'WaterLogData',
+        'DataType': 'waterLog',
         'timestamp': todays_date,
         'water_log': data['water_log']['summary']['water'] 
     }
     
 
-# def transform_core_temp_data(data):
-#     # add code
+def transform_core_temp_data(data):
+    return {
+        'DataType': 'tempCore',
+        'timestamp': todays_date,
+        'temperature': data['core_temp']['tempCore']['value']
+    }
 
-# def transform_spo2_data(data):
-#     # add code
+def transform_ecg_data(data):
+    return {
+        'DataType': 'ecgLog',
+        'timestamp': todays_date,
+        'averageHeartRate': data['ecgReadings']['averageHeartRate'],
+        'resultClassification': data['ecgReadings']['resultClassification']
+    }
+
+def transform_spo2_data(data):
+    return {
+        'DataType': 'spO2',
+        'timestamp': todays_date,
+        'averageSpO2': data['value']['avg'],
+        'minSpO2': data['value']['min'],
+        'maxSpO2': data['value']['max']
+    }
     
 
-# def add_data_dyanamodb(data):
-
+def add_data_dyanamodb(data):
+    transformed_data = []
+    transformed_data.append(transform_br_data(data))
+    transformed_data.append(transform_water_data(data))
+    transformed_data.append(transform_core_temp_data(data))
+    transformed_data.append(transform_ecg_data(data))
+    transformed_data.append(transform_spo2_data(data))
+    
+    for item in transformed_data:
+        try:
+            table.put_item(Item=item)
+            logger.info(f"Item placed in DynamoDB Table: {item}")
+        except Exception as e:
+            logger.error(f'An error occured when attempting to place item in Table: {e}')
 
 def lambda_handler(event, context):
-    
     print(event)
-
     # Get needed parameters for refresh token and declare constant variables
     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
@@ -187,6 +215,7 @@ def lambda_handler(event, context):
     # Attempt to get the fitbit data
     try: 
         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
+        add_data_dyanamodb(fitbit_data)
     except Exception as e:
         logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
 
