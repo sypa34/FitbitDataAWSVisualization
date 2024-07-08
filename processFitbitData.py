@@ -17,8 +17,8 @@ todays_date = str(datetime.datetime.now())
 http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-dynamodb_client = boto3.client('dynamodb')
-table = dynamodb_client.Table('FitbitData')
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('FitbitData')
 
 def verify_subscriber(event, context):
     
