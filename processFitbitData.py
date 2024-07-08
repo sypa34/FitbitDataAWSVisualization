@@ -141,20 +141,7 @@ def get_fitbit_data(access_token):
 #         'DataType': 'breathingRate',
 #         'timestamp': todays_date,
 #         'breathing_rate': data['breathing_rate']['summary']
-#     }
-
-def transform_br_data(data):
-    logger.info({
-        'DataType': 'breathingRate',
-        'timestamp': todays_date,
-        'breathing_rate': data['breathing_rate']['br'][0]['value']
-    })
-    return {
-        'DataType': 'breathingRate',
-        'timestamp': todays_date,
-        'breathing_rate': data['breathing_rate']['br'][0]['value']
-    }
-
+#       }
 
 
 # def transform_water_data(data):
@@ -169,18 +156,6 @@ def transform_br_data(data):
 #         'water_log': data['water_log']['summary']['water'] 
 #     }
     
-def transform_water_data(data):
-    logger.info({
-        'DataType': 'waterLog',
-        'timestamp': todays_date,
-        'water_log': data['water_log']['summary']['water']
-    })
-    return {
-        'DataType': 'waterLog',
-        'timestamp': todays_date,
-        'water_log': data['water_log']['summary']['water']
-    }
-
 
 # def transform_core_temp_data(data):
 #     logger.info({
@@ -193,18 +168,6 @@ def transform_water_data(data):
 #         'timestamp': todays_date,
 #         'temperature': data['core_temp']['tempCore']['value']
 #     }
-
-def transform_core_temp_data(data):
-    logger.info({
-        'DataType': 'tempCore',
-        'timestamp': todays_date,
-        'temperature': data['core_temp']['tempCore'][0]['value']
-    })
-    return {
-        'DataType': 'tempCore',
-        'timestamp': todays_date,
-        'temperature': data['core_temp']['tempCore'][0]['value']
-    }
 
 
 # def transform_ecg_data(data):
@@ -220,20 +183,6 @@ def transform_core_temp_data(data):
 #         'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
 #         'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
 #     }
-
-def transform_ecg_data(data):
-    logger.info({
-        'DataType': 'ecgLog',
-        'timestamp': todays_date,
-        'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
-        'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
-    })
-    return {
-        'DataType': 'ecgLog',
-        'timestamp': todays_date,
-        'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
-        'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
-    }
 
 
 # def transform_spo2_data(data):
@@ -252,29 +201,130 @@ def transform_ecg_data(data):
 #         'maxSpO2': data['spo2_log']['value']['max']
 #     }
 
+def transform_br_data(data):
+    if 'br' in data['breathing_rate'] and len(data['breathing_rate']['br']) > 0:
+        logger.info({
+            'DataType': 'breathingRate',
+            'timestamp': todays_date,
+            'breathing_rate': data['breathing_rate']['br'][0]['value']
+        })
+        return {
+            'DataType': 'breathingRate',
+            'timestamp': todays_date,
+            'breathing_rate': data['breathing_rate']['br'][0]['value']
+        }
+    else:
+        logger.error("No breathing rate data available.")
+        return None
+
+def transform_water_data(data):
+    if 'summary' in data['water_log'] and 'water' in data['water_log']['summary']:
+        logger.info({
+            'DataType': 'waterLog',
+            'timestamp': todays_date,
+            'water_log': data['water_log']['summary']['water']
+        })
+        return {
+            'DataType': 'waterLog',
+            'timestamp': todays_date,
+            'water_log': data['water_log']['summary']['water']
+        }
+    else:
+        logger.error("No water log data available.")
+        return None
+
+def transform_core_temp_data(data):
+    if 'tempCore' in data['core_temp'] and len(data['core_temp']['tempCore']) > 0:
+        logger.info({
+            'DataType': 'tempCore',
+            'timestamp': todays_date,
+            'temperature': data['core_temp']['tempCore'][0]['value']
+        })
+        return {
+            'DataType': 'tempCore',
+            'timestamp': todays_date,
+            'temperature': data['core_temp']['tempCore'][0]['value']
+        }
+    else:
+        logger.error("No core temperature data available.")
+        return None
+
+def transform_ecg_data(data):
+    if 'ecgReadings' in data['ecg_log'] and len(data['ecg_log']['ecgReadings']) > 0:
+        logger.info({
+            'DataType': 'ecgLog',
+            'timestamp': todays_date,
+            'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+            'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
+        })
+        return {
+            'DataType': 'ecgLog',
+            'timestamp': todays_date,
+            'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+            'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
+        }
+    else:
+        logger.error("No ECG data available.")
+        return None
+
 def transform_spo2_data(data):
-    logger.info({
-        'DataType': 'spO2',
-        'timestamp': todays_date,
-        'averageSpO2': data['spo2_log']['value']['avg'],
-        'minSpO2': data['spo2_log']['value']['min'],
-        'maxSpO2': data['spo2_log']['value']['max']
-    })
-    return {
-        'DataType': 'spO2',
-        'timestamp': todays_date,
-        'averageSpO2': data['spo2_log']['value']['avg'],
-        'minSpO2': data['spo2_log']['value']['min'],
-        'maxSpO2': data['spo2_log']['value']['max']
-    }
+    if 'value' in data['spo2_log']:
+        logger.info({
+            'DataType': 'spO2',
+            'timestamp': todays_date,
+            'averageSpO2': data['spo2_log']['value']['avg'],
+            'minSpO2': data['spo2_log']['value']['min'],
+            'maxSpO2': data['spo2_log']['value']['max']
+        })
+        return {
+            'DataType': 'spO2',
+            'timestamp': todays_date,
+            'averageSpO2': data['spo2_log']['value']['avg'],
+            'minSpO2': data['spo2_log']['value']['min'],
+            'maxSpO2': data['spo2_log']['value']['max']
+        }
+    else:
+        logger.error("No SpO2 data available.")
+        return None
+
+
+# def add_data_dyanamodb(data):
+#     transformed_data = []
+#     transformed_data.append(transform_br_data(data))
+#     transformed_data.append(transform_water_data(data))
+#     transformed_data.append(transform_core_temp_data(data))
+#     transformed_data.append(transform_ecg_data(data))
+#     transformed_data.append(transform_spo2_data(data))
+    
+#     for item in transformed_data:
+#         try:
+#             table.put_item(Item=item)
+#             logger.info(f"Item placed in DynamoDB Table: {item}")
+#         except Exception as e:
+#             logger.error(f'An error occured when attempting to place item in Table: {e}')
+
 
 def add_data_dyanamodb(data):
     transformed_data = []
-    transformed_data.append(transform_br_data(data))
-    transformed_data.append(transform_water_data(data))
-    transformed_data.append(transform_core_temp_data(data))
-    transformed_data.append(transform_ecg_data(data))
-    transformed_data.append(transform_spo2_data(data))
+    br_data = transform_br_data(data)
+    if br_data:
+        transformed_data.append(br_data)
+    
+    water_data = transform_water_data(data)
+    if water_data:
+        transformed_data.append(water_data)
+    
+    core_temp_data = transform_core_temp_data(data)
+    if core_temp_data:
+        transformed_data.append(core_temp_data)
+    
+    ecg_data = transform_ecg_data(data)
+    if ecg_data:
+        transformed_data.append(ecg_data)
+    
+    spo2_data = transform_spo2_data(data)
+    if spo2_data:
+        transformed_data.append(spo2_data)
     
     for item in transformed_data:
         try:
@@ -282,6 +332,7 @@ def add_data_dyanamodb(data):
             logger.info(f"Item placed in DynamoDB Table: {item}")
         except Exception as e:
             logger.error(f'An error occured when attempting to place item in Table: {e}')
+
 
 def lambda_handler(event, context):
     print(event)
