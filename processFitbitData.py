@@ -5,6 +5,7 @@ import base64
 import urllib3
 import urllib.parse
 import datetime
+from decimal import Decimal
 # import requests
 
 SSM = boto3.client("ssm")
