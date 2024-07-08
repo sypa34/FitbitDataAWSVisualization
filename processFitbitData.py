@@ -13,7 +13,7 @@ FITBIT_URL_ENDPOINT = 'https://api.fitbit.com/1/user/-/profile.json'
 # FITBIT_TOKEN_ENDPOINT will be used to obtain new access and refresh tokens
 FITBIT_TOKEN_ENDPOINT = "https://api.fitbit.com/oauth2/token"
 
-todays_date = str(datetime.datetime.now())
+todays_date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
 http = urllib3.PoolManager()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -217,7 +217,7 @@ def lambda_handler(event, context):
         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
         add_data_dyanamodb(fitbit_data)
     except Exception as e:
-        logger.error("An error occured when trying to obtain Fitbit Data: {}".format(e))
+        logger.error("An error occured: {}".format(e))
 
     
     
