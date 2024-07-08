@@ -342,7 +342,7 @@ def add_data_dyanamodb(data):
             table.put_item(Item=item)
             logger.info(f"Item placed in DynamoDB Table: {item}")
         except Exception as e:
-            logger.error(f'An error occured when attempting to place item in Table: {e}')
+            logger.error(f'An error occured when attempting to place item ({item}) in Table: {e}')
 
 
 
