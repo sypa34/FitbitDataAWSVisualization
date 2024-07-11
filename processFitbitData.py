@@ -333,15 +333,20 @@ def add_data_dyanamodb(data):
         try:
             # Convert numerical values to Decimal
             if 'breathing_rate' in item:
-                item['breathing_rate'] = round(item['breathing_rate'], 2)
+                rounded_br = round(item['breathing_rate'], 2)
+                item['breathing_rate'] = rounded_br
                 logger.info(item['breathing_rate'])
             elif 'temperature' in item:
-                item['temperature'] = round(item['temperature'], 2)
+                rounded_temp = round(item['temperature'], 2)
+                item['temperature'] = rounded_temp
                 logger.info(item['temperature'])
             elif 'averageSpO2' in item:
-                item['averageSpO2'] = round(item['averageSpO2'], 2)
-                item['minSpO2'] = round(item['minSpO2'], 2)
-                item['maxSpO2'] = round(item['maxSpO2'], 2)
+                rounded_avg_spO2 = round(item['averagespO2'], 2)
+                rounded_min_spO2 = round(item['minSpO2'], 2)
+                rounded_max_spO2 = round(item['maxSpO2'], 2)
+                item['averageSpO2'] = rounded_avg_spO2
+                item['minSpO2'] = rounded_min_spO2
+                item['maxSpO2'] = rounded_max_spO2
                 logger.info(item['averageSpO2'])
                 logger.info(item['minSpO2'])
                 logger.info(item['maxSpO2'])
