@@ -134,76 +134,6 @@ def get_fitbit_data(access_token):
     
     return data
 
-
-# def transform_br_data(data):
-#     logger.info({
-#         'DataType': 'breathingRate',
-#         'timestamp': todays_date,
-#         'breathing_rate': data['breathing_rate']['summary']})
-#     return {
-#         'DataType': 'breathingRate',
-#         'timestamp': todays_date,
-#         'breathing_rate': data['breathing_rate']['summary']
-#       }
-
-
-# def transform_water_data(data):
-#     logger.info({
-#         'DataType': 'waterLog',
-#         'timestamp': todays_date,
-#         'water_log': data['water_log']['summary']['water'] 
-#     })
-#     return {
-#         'DataType': 'waterLog',
-#         'timestamp': todays_date,
-#         'water_log': data['water_log']['summary']['water'] 
-#     }
-    
-
-# def transform_core_temp_data(data):
-#     logger.info({
-#         'DataType': 'tempCore',
-#         'timestamp': todays_date,
-#         'temperature': data['core_temp']['tempCore']['value']
-#     })
-#     return {
-#         'DataType': 'tempCore',
-#         'timestamp': todays_date,
-#         'temperature': data['core_temp']['tempCore']['value']
-#     }
-
-
-# def transform_ecg_data(data):
-#     logger.info({
-#         'DataType': 'ecgLog',
-#         'timestamp': todays_date,
-#         'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
-#         'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
-#     })
-#     return {
-#         'DataType': 'ecgLog',
-#         'timestamp': todays_date,
-#         'averageHeartRate': data['ecg_log']['ecgReadings']['averageHeartRate'],
-#         'resultClassification': data['ecg_log']['ecgReadings']['resultClassification']
-#     }
-
-
-# def transform_spo2_data(data):
-#     logger.info({
-#         'DataType': 'spO2',
-#         'timestamp': todays_date,
-#         'averageSpO2': data['spo2_log']['value']['avg'],
-#         'minSpO2': data['spo2_log']['value']['min'],
-#         'maxSpO2': data['spo2_log']['value']['max']
-#     })
-#     return {
-#         'DataType': 'spO2',
-#         'timestamp': todays_date,
-#         'averageSpO2': data['spo2_log']['value']['avg'],
-#         'minSpO2': data['spo2_log']['value']['min'],
-#         'maxSpO2': data['spo2_log']['value']['max']
-#     }
-
 def transform_br_data(data):
     if 'br' in data['breathing_rate'] and len(data['breathing_rate']['br']) > 0:
         logger.info({
@@ -214,7 +144,7 @@ def transform_br_data(data):
         return {
             'DataType': 'breathingRate',
             'timestamp': todays_date,
-            'breathing_rate': data['breathing_rate']['br'][0]['value']
+            'breathing_rate': round(data['breathing_rate']['br'][0]['value'], 2)
         }
     else:
         logger.error("No breathing rate data available.")
@@ -230,7 +160,7 @@ def transform_water_data(data):
         return {
             'DataType': 'waterLog',
             'timestamp': todays_date,
-            'water_log': data['water_log']['summary']['water']
+            'water_log': round(data['water_log']['summary']['water'], 2)
         }
     else:
         logger.error("No water log data available.")
@@ -246,7 +176,7 @@ def transform_core_temp_data(data):
         return {
             'DataType': 'tempCore',
             'timestamp': todays_date,
-            'temperature': data['core_temp']['tempCore'][0]['value']
+            'temperature': round(data['core_temp']['tempCore'][0]['value'])
         }
     else:
         logger.error("No core temperature data available.")
@@ -263,7 +193,7 @@ def transform_ecg_data(data):
         return {
             'DataType': 'ecgLog',
             'timestamp': todays_date,
-            'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+            'averageHeartRate': round(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2),
             'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
         }
     else:
@@ -282,29 +212,13 @@ def transform_spo2_data(data):
         return {
             'DataType': 'spO2',
             'timestamp': todays_date,
-            'averageSpO2': data['spo2_log']['value']['avg'],
-            'minSpO2': data['spo2_log']['value']['min'],
-            'maxSpO2': data['spo2_log']['value']['max']
+            'averageSpO2': round(data['spo2_log']['value']['avg'], 2),
+            'minSpO2': round(data['spo2_log']['value']['min'], 2),
+            'maxSpO2': round(data['spo2_log']['value']['max'], 2)
         }
     else:
         logger.error("No SpO2 data available.")
         return None
-
-
-# def add_data_dyanamodb(data):
-#     transformed_data = []
-#     transformed_data.append(transform_br_data(data))
-#     transformed_data.append(transform_water_data(data))
-#     transformed_data.append(transform_core_temp_data(data))
-#     transformed_data.append(transform_ecg_data(data))
-#     transformed_data.append(transform_spo2_data(data))
-    
-#     for item in transformed_data:
-#         try:
-#             table.put_item(Item=item)
-#             logger.info(f"Item placed in DynamoDB Table: {item}")
-#         except Exception as e:
-#             logger.error(f'An error occured when attempting to place item in Table: {e}')
 
 
 def add_data_dyanamodb(data):
@@ -333,20 +247,15 @@ def add_data_dyanamodb(data):
         try:
             # Convert numerical values to Decimal
             if 'breathing_rate' in item:
-                rounded_br = round(item['breathing_rate'], 2)
-                item['breathing_rate'] = rounded_br
+                item['breathing_rate'] = item['breathing_rate']
                 logger.info(item['breathing_rate'])
             elif 'temperature' in item:
-                rounded_temp = round(item['temperature'], 2)
-                item['temperature'] = rounded_temp
+                item['temperature'] = item['temperature']
                 logger.info(item['temperature'])
             elif 'averageSpO2' in item:
-                rounded_avg_spO2 = round(item['averagespO2'], 2)
-                rounded_min_spO2 = round(item['minSpO2'], 2)
-                rounded_max_spO2 = round(item['maxSpO2'], 2)
-                item['averageSpO2'] = rounded_avg_spO2
-                item['minSpO2'] = rounded_min_spO2
-                item['maxSpO2'] = rounded_max_spO2
+                item['averageSpO2'] = item['averageSpO2']
+                item['minSpO2'] = item['minSpO2']
+                item['maxSpO2'] = item['maxSpO2']
                 logger.info(item['averageSpO2'])
                 logger.info(item['minSpO2'])
                 logger.info(item['maxSpO2'])
