@@ -6,6 +6,7 @@ import urllib3
 import urllib.parse
 import datetime
 from decimal import Decimal
+import os
 # import requests
 
 SSM = boto3.client("ssm")
@@ -16,8 +17,9 @@ FITBIT_TOKEN_ENDPOINT = "https://api.fitbit.com/oauth2/token"
 
 todays_date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
 http = urllib3.PoolManager()
+log_level = os.environ.get('LAMBDA_LOG_LEVEL', 'INFO')
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('FitbitData')
 
