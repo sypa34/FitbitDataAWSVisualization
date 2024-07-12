@@ -23,6 +23,7 @@ logger.setLevel(log_level)
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('FitbitData')
 
+# One time use to verify the subscriber
 def verify_subscriber(event, context):
     
     CORRECT_VERIFICATION_CODE = "50ac9687637e30631ee449024a176e10953c8f03627160c4fd4ba55114c7008c"
@@ -42,7 +43,7 @@ def verify_subscriber(event, context):
             'statusCode': 404,
             'body': ''
         }
-
+# One time use in order to successfully create a subscription
 def create_subscription(access_token, subscription_id, collection_path=None):
     http = urllib3.PoolManager()
     base_url = "https://api.fitbit.com/1/user/-"
@@ -70,12 +71,11 @@ def create_subscription(access_token, subscription_id, collection_path=None):
         logger.error(f"Failed to create subscription: {response.status} - {response_data}")
 
     return response_data
-
+# Function needed in order to retrieve/decrypt the contents of a paramater within SSM Parameter Store
 def get_parameter(parameter_key, decryption_choice):
     parameter = SSM.get_parameter(Name=parameter_key, WithDecryption=decryption_choice)['Parameter']['Value']
     return parameter
-
-# Function should refresh the tokens in Systems Paramter Store
+# Function refreshes the tokens contained in SSM Parameter Store
 def refresh_access_token(client_id, client_secret, refresh_token, access_param_name, refresh_param_name):
     concatenated_client_id_client_secret = f"{client_id}:{client_secret}"
     base64_credentials = base64.b64encode(concatenated_client_id_client_secret.encode()).decode()
@@ -103,7 +103,7 @@ def refresh_access_token(client_id, client_secret, refresh_token, access_param_n
         # Change (overwrite) the values in parameter store
         SSM.put_parameter(Name=access_param_name, Value=json_response['access_token'], Overwrite=True)
         SSM.put_parameter(Name=refresh_param_name, Value=json_response['refresh_token'], Overwrite=True)
-
+# Function obtains fitbit data from the Fitbit API by URLLIB3 to make a 'Get' request with the necessary headers, fields, and access tokens 
 def get_fitbit_data(access_token):
 
     header = {
@@ -133,7 +133,7 @@ def get_fitbit_data(access_token):
     }
     
     return data
-
+# Below 'transform' functions modify the data from the 'get_fitbit_data' function; these functions are used by the 'add_data_dynamodb' function
 def transform_br_data(data):
     if 'br' in data['breathing_rate'] and len(data['breathing_rate']['br']) > 0:
         logger.info({
@@ -219,8 +219,8 @@ def transform_spo2_data(data):
     else:
         logger.error("No SpO2 data available.")
         return None
-
-
+# The 'add_data_dynamodb' function utilizes the 'transform' functions to modify the data into the appropriate format, stores the json dictionaries
+# in a list if they contain data. The function then iterates over the list and adds the data to dyanamodb.
 def add_data_dyanamodb(data):
     transformed_data = []
     br_data = transform_br_data(data)
@@ -264,8 +264,6 @@ def add_data_dyanamodb(data):
             logger.info(f"Item placed in DynamoDB Table: {item}")
         except Exception as e:
             logger.error(f'An error occured when attempting to place item ({item}) in Table: {e}')
-
-
 
 def lambda_handler(event, context):
     print(event)
