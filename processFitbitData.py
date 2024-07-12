@@ -144,7 +144,7 @@ def transform_br_data(data):
         return {
             'DataType': 'breathingRate',
             'timestamp': todays_date,
-            'breathing_rate': round(data['breathing_rate']['br'][0]['value'], 2)
+            'breathing_rate': Decimal(data['breathing_rate']['br'][0]['value'], 2)
         }
     else:
         logger.error("No breathing rate data available.")
@@ -160,7 +160,7 @@ def transform_water_data(data):
         return {
             'DataType': 'waterLog',
             'timestamp': todays_date,
-            'water_log': round(data['water_log']['summary']['water'], 2)
+            'water_log': Decimal(data['water_log']['summary']['water'], 2)
         }
     else:
         logger.error("No water log data available.")
@@ -176,7 +176,7 @@ def transform_core_temp_data(data):
         return {
             'DataType': 'tempCore',
             'timestamp': todays_date,
-            'temperature': round(data['core_temp']['tempCore'][0]['value'])
+            'temperature': Decimal(data['core_temp']['tempCore'][0]['value'])
         }
     else:
         logger.error("No core temperature data available.")
@@ -193,7 +193,7 @@ def transform_ecg_data(data):
         return {
             'DataType': 'ecgLog',
             'timestamp': todays_date,
-            'averageHeartRate': round(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2),
+            'averageHeartRate': Decimal(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2),
             'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
         }
     else:
@@ -212,9 +212,9 @@ def transform_spo2_data(data):
         return {
             'DataType': 'spO2',
             'timestamp': todays_date,
-            'averageSpO2': round(data['spo2_log']['value']['avg'], 2),
-            'minSpO2': round(data['spo2_log']['value']['min'], 2),
-            'maxSpO2': round(data['spo2_log']['value']['max'], 2)
+            'averageSpO2': Decimal(data['spo2_log']['value']['avg'], 2),
+            'minSpO2': Decimal(data['spo2_log']['value']['min'], 2),
+            'maxSpO2': Decimal(data['spo2_log']['value']['max'], 2)
         }
     else:
         logger.error("No SpO2 data available.")
