@@ -5,7 +5,7 @@ import base64
 import urllib3
 import urllib.parse
 import datetime
-from decimal import Decimal
+from decimal import Decimal, getcontext
 import os
 # import requests
 
@@ -22,6 +22,8 @@ logger = logging.getLogger()
 logger.setLevel(log_level)
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('FitbitData')
+getcontext().prec = 2  # Set precision for Decimal
+
 
 # One time use to verify the subscriber
 def verify_subscriber(event, context):
@@ -134,6 +136,167 @@ def get_fitbit_data(access_token):
     
     return data
 # Below 'transform' functions modify the data from the 'get_fitbit_data' function; these functions are used by the 'add_data_dynamodb' function
+# def transform_br_data(data):
+#     if 'br' in data['breathing_rate'] and len(data['breathing_rate']['br']) > 0:
+#         logger.info({
+#             'DataType': 'breathingRate',
+#             'timestamp': todays_date,
+#             'breathing_rate': data['breathing_rate']['br'][0]['value']
+#         })
+#         return {
+#             'DataType': 'breathingRate',
+#             'timestamp': todays_date,
+#             'breathing_rate': Decimal(data['breathing_rate']['br'][0]['value'], 2)
+#         }
+#     else:
+#         logger.error("No breathing rate data available.")
+#         return None
+
+# def transform_water_data(data):
+#     if 'summary' in data['water_log'] and 'water' in data['water_log']['summary']:
+#         logger.info({
+#             'DataType': 'waterLog',
+#             'timestamp': todays_date,
+#             'water_log': data['water_log']['summary']['water']
+#         })
+#         return {
+#             'DataType': 'waterLog',
+#             'timestamp': todays_date,
+#             'water_log': Decimal(data['water_log']['summary']['water'], 2)
+#         }
+#     else:
+#         logger.error("No water log data available.")
+#         return None
+
+# def transform_core_temp_data(data):
+#     if 'tempCore' in data['core_temp'] and len(data['core_temp']['tempCore']) > 0:
+#         logger.info({
+#             'DataType': 'tempCore',
+#             'timestamp': todays_date,
+#             'temperature': data['core_temp']['tempCore'][0]['value']
+#         })
+#         return {
+#             'DataType': 'tempCore',
+#             'timestamp': todays_date,
+#             'temperature': Decimal(data['core_temp']['tempCore'][0]['value'])
+#         }
+#     else:
+#         logger.error("No core temperature data available.")
+#         return None
+
+# def transform_ecg_data(data):
+#     if 'ecgReadings' in data['ecg_log'] and len(data['ecg_log']['ecgReadings']) > 0:
+#         logger.info({
+#             'DataType': 'ecgLog',
+#             'timestamp': todays_date,
+#             'averageHeartRate': data['ecg_log']['ecgReadings'][0]['averageHeartRate'],
+#             'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
+#         })
+#         return {
+#             'DataType': 'ecgLog',
+#             'timestamp': todays_date,
+#             'averageHeartRate': Decimal(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2),
+#             'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
+#         }
+#     else:
+#         logger.error("No ECG data available.")
+#         return None
+
+# def transform_spo2_data(data):
+#     if 'value' in data['spo2_log']:
+#         logger.info({
+#             'DataType': 'spO2',
+#             'timestamp': todays_date,
+#             'averageSpO2': data['spo2_log']['value']['avg'],
+#             'minSpO2': data['spo2_log']['value']['min'],
+#             'maxSpO2': data['spo2_log']['value']['max']
+#         })
+#         return {
+#             'DataType': 'spO2',
+#             'timestamp': todays_date,
+#             'averageSpO2': Decimal(data['spo2_log']['value']['avg'], 2),
+#             'minSpO2': Decimal(data['spo2_log']['value']['min'], 2),
+#             'maxSpO2': Decimal(data['spo2_log']['value']['max'], 2)
+#         }
+#     else:
+#         logger.error("No SpO2 data available.")
+#         return None
+# # The 'add_data_dynamodb' function utilizes the 'transform' functions to modify the data into the appropriate format, stores the json dictionaries
+# # in a list if they contain data. The function then iterates over the list and adds the data to dyanamodb.
+# def add_data_dyanamodb(data):
+#     transformed_data = []
+#     br_data = transform_br_data(data)
+#     if br_data:
+#         transformed_data.append(br_data)
+    
+#     water_data = transform_water_data(data)
+#     if water_data:
+#         transformed_data.append(water_data)
+    
+#     core_temp_data = transform_core_temp_data(data)
+#     if core_temp_data:
+#         transformed_data.append(core_temp_data)
+    
+#     ecg_data = transform_ecg_data(data)
+#     if ecg_data:
+#         transformed_data.append(ecg_data)
+    
+#     spo2_data = transform_spo2_data(data)
+#     if spo2_data:
+#         transformed_data.append(spo2_data)
+    
+#     for item in transformed_data:
+#         try:
+#             # Convert numerical values to Decimal
+#             if 'breathing_rate' in item:
+#                 item['breathing_rate'] = item['breathing_rate']
+#                 logger.info(item['breathing_rate'])
+#             elif 'temperature' in item:
+#                 item['temperature'] = item['temperature']
+#                 logger.info(item['temperature'])
+#             elif 'averageSpO2' in item:
+#                 item['averageSpO2'] = item['averageSpO2']
+#                 item['minSpO2'] = item['minSpO2']
+#                 item['maxSpO2'] = item['maxSpO2']
+#                 logger.info(item['averageSpO2'])
+#                 logger.info(item['minSpO2'])
+#                 logger.info(item['maxSpO2'])
+            
+#             table.put_item(Item=item)
+#             logger.info(f"Item placed in DynamoDB Table: {item}")
+#         except Exception as e:
+#             logger.error(f'An error occured when attempting to place item ({item}) in Table: {e}')
+
+# def lambda_handler(event, context):
+#     print(event)
+#     # Get needed parameters for refresh token and declare constant variables
+#     client_id_parameter = get_parameter("Fitbit_Client_ID", True)
+#     client_secret_parameter = get_parameter("Fitbit_Client_Secret", True)
+#     refresh_token_parameter = get_parameter("Fitbit_Refresh_Token", True)
+#     ACCESS_PARAMETER_NAME = "Fitbit_Access_Token"
+#     REFRESH_PARAMETER_NAME = "Fitbit_Refresh_Token"
+#     # Call the refresh_access_token function to refresh the tokens used to obtain Fitbit Data
+#     refresh_access_token(client_id_parameter, client_secret_parameter, refresh_token_parameter, ACCESS_PARAMETER_NAME, REFRESH_PARAMETER_NAME)
+#     # Attempt to get the fitbit data
+#     try: 
+#         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
+#         add_data_dyanamodb(fitbit_data)
+#     except Exception as e:
+#         logger.error("An error occured: {}".format(e))
+
+
+
+
+
+
+###############################################################################################################################3
+
+
+
+
+
+
+
 def transform_br_data(data):
     if 'br' in data['breathing_rate'] and len(data['breathing_rate']['br']) > 0:
         logger.info({
@@ -144,7 +307,7 @@ def transform_br_data(data):
         return {
             'DataType': 'breathingRate',
             'timestamp': todays_date,
-            'breathing_rate': Decimal(data['breathing_rate']['br'][0]['value'], 2)
+            'breathing_rate': Decimal(str(round(data['breathing_rate']['br'][0]['value'], 2)))
         }
     else:
         logger.error("No breathing rate data available.")
@@ -160,7 +323,7 @@ def transform_water_data(data):
         return {
             'DataType': 'waterLog',
             'timestamp': todays_date,
-            'water_log': Decimal(data['water_log']['summary']['water'], 2)
+            'water_log': Decimal(str(round(data['water_log']['summary']['water'], 2)))
         }
     else:
         logger.error("No water log data available.")
@@ -176,7 +339,7 @@ def transform_core_temp_data(data):
         return {
             'DataType': 'tempCore',
             'timestamp': todays_date,
-            'temperature': Decimal(data['core_temp']['tempCore'][0]['value'])
+            'temperature': Decimal(str(round(data['core_temp']['tempCore'][0]['value'], 2)))
         }
     else:
         logger.error("No core temperature data available.")
@@ -193,7 +356,7 @@ def transform_ecg_data(data):
         return {
             'DataType': 'ecgLog',
             'timestamp': todays_date,
-            'averageHeartRate': Decimal(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2),
+            'averageHeartRate': Decimal(str(round(data['ecg_log']['ecgReadings'][0]['averageHeartRate'], 2))),
             'resultClassification': data['ecg_log']['ecgReadings'][0]['resultClassification']
         }
     else:
@@ -212,58 +375,30 @@ def transform_spo2_data(data):
         return {
             'DataType': 'spO2',
             'timestamp': todays_date,
-            'averageSpO2': Decimal(data['spo2_log']['value']['avg'], 2),
-            'minSpO2': Decimal(data['spo2_log']['value']['min'], 2),
-            'maxSpO2': Decimal(data['spo2_log']['value']['max'], 2)
+            'averageSpO2': Decimal(str(round(data['spo2_log']['value']['avg'], 2))),
+            'minSpO2': Decimal(str(round(data['spo2_log']['value']['min'], 2))),
+            'maxSpO2': Decimal(str(round(data['spo2_log']['value']['max'], 2)))
         }
     else:
         logger.error("No SpO2 data available.")
         return None
-# The 'add_data_dynamodb' function utilizes the 'transform' functions to modify the data into the appropriate format, stores the json dictionaries
-# in a list if they contain data. The function then iterates over the list and adds the data to dyanamodb.
-def add_data_dyanamodb(data):
-    transformed_data = []
-    br_data = transform_br_data(data)
-    if br_data:
-        transformed_data.append(br_data)
-    
-    water_data = transform_water_data(data)
-    if water_data:
-        transformed_data.append(water_data)
-    
-    core_temp_data = transform_core_temp_data(data)
-    if core_temp_data:
-        transformed_data.append(core_temp_data)
-    
-    ecg_data = transform_ecg_data(data)
-    if ecg_data:
-        transformed_data.append(ecg_data)
-    
-    spo2_data = transform_spo2_data(data)
-    if spo2_data:
-        transformed_data.append(spo2_data)
+
+def add_data_dynamodb(data):
+    transformed_data = [
+        transform_br_data(data),
+        transform_water_data(data),
+        transform_core_temp_data(data),
+        transform_ecg_data(data),
+        transform_spo2_data(data)
+    ]
     
     for item in transformed_data:
-        try:
-            # Convert numerical values to Decimal
-            if 'breathing_rate' in item:
-                item['breathing_rate'] = item['breathing_rate']
-                logger.info(item['breathing_rate'])
-            elif 'temperature' in item:
-                item['temperature'] = item['temperature']
-                logger.info(item['temperature'])
-            elif 'averageSpO2' in item:
-                item['averageSpO2'] = item['averageSpO2']
-                item['minSpO2'] = item['minSpO2']
-                item['maxSpO2'] = item['maxSpO2']
-                logger.info(item['averageSpO2'])
-                logger.info(item['minSpO2'])
-                logger.info(item['maxSpO2'])
-            
-            table.put_item(Item=item)
-            logger.info(f"Item placed in DynamoDB Table: {item}")
-        except Exception as e:
-            logger.error(f'An error occured when attempting to place item ({item}) in Table: {e}')
+        if item:
+            try:
+                table.put_item(Item=item)
+                logger.info(f"Item placed in DynamoDB Table: {item}")
+            except Exception as e:
+                logger.error(f'An error occurred when attempting to place item ({item}) in Table: {e}')
 
 def lambda_handler(event, context):
     print(event)
@@ -278,9 +413,9 @@ def lambda_handler(event, context):
     # Attempt to get the fitbit data
     try: 
         fitbit_data = get_fitbit_data(get_parameter("Fitbit_Access_Token", True))
-        add_data_dyanamodb(fitbit_data)
+        add_data_dynamodb(fitbit_data)
     except Exception as e:
-        logger.error("An error occured: {}".format(e))
+        logger.error("An error occurred: {}".format(e))
 
     
     
